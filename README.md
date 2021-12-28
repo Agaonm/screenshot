@@ -11,7 +11,9 @@ screenshot
 * Multiple display supported.
 * `cgo` free for Windows, Linux, FreeBSD, OpenBSD, NetBSD, and Solaris.
 
-example
+* Added Window Capture for Specific Application on Windows - Agaonm
+
+example to Capture Single Application
 =======
 
 * sample program `main.go`
@@ -27,37 +29,27 @@ example
 	)
 
 	func main() {
-		n := screenshot.NumActiveDisplays()
+		window := gocv.NewWindow("Capture")
 
-		for i := 0; i < n; i++ {
-			bounds := screenshot.GetDisplayBounds(i)
+		for {
+			winName := "Spotify Premium"
+			u16fname, err := syscall.UTF16FromString(winName)
 
-			img, err := screenshot.CaptureRect(bounds)
+			img, err := screenshot.CaptureApp2(&u16fname[0])
 			if err != nil {
 				panic(err)
 			}
-			fileName := fmt.Sprintf("%d_%dx%d.png", i, bounds.Dx(), bounds.Dy())
-			file, _ := os.Create(fileName)
-			defer file.Close()
-			png.Encode(file, img)
 
-			fmt.Printf("#%d : %v \"%s\"\n", i, bounds, fileName)
+			imgMat, err := gocv.ImageToMatRGBA(img)
+			if err != nil {
+				panic(err)
+			}
+
+			window.IMShow(imgMat)
+
+			window.WaitKey(1)
 		}
 	}
-	```
-
-* output example
-	
-	```bash
-	$ go run main.go
-	#0 : (0,0)-(1280,800) "0_1280x800.png"
-	#1 : (-293,-1440)-(2267,0) "1_2560x1440.png"
-	#2 : (-1373,-1812)-(-293,108) "2_1080x1920.png"
-	$ ls -1
-	0_1280x800.png
-	1_2560x1440.png
-	2_1080x1920.png
-	main.go
 	```
 
 coordinate
